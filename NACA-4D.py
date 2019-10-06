@@ -1,9 +1,23 @@
-name="5555"
-#def NACA_4D(name,n_points,separation)
+name="00255"
+#def NACA_4D(name,n_points,separation,chord)
+c=0.32
 coef=[]
-for x in name:
-    coef.append(int(x))
+if len(name)==4:
+    for x in name:
+        coef.append(x)
+    # Max Thickness
+    XX=int(coef[0]+coef[1])/100
+    # First digit
+    M=int(coef[2])/100
+    # Second digit
+    P=int(coef[2])/10
+else:
+    print("The NACA number must be four digits")
+
 print(coef)
+print(XX)
+print(M)
+print(P)
 
 #a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 #% Leading edge cerrado, para abierto se usa a4=0.1015;
@@ -16,7 +30,7 @@ print(coef)
 #% max thickness
 #XX=18/100;  %max thickness
 #M=3/100;    %primer digito
-#P=3/10;     %segundo digitoç
+#P=3/10;     %segundo digito
 #c=0.32;     %cuerda
 #
 #tita=0:(pi/2/(n-1)):pi/2;
