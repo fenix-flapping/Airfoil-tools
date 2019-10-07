@@ -1,5 +1,9 @@
-name="00255"
+import numpy as np
+import math # only for pi number
+
+name="0055"
 #def NACA_4D(name,n_points,separation,chord)
+n_points=100
 c=0.32
 coef=[]
 if len(name)==4:
@@ -18,6 +22,9 @@ print(coef)
 print(XX)
 print(M)
 print(P)
+
+tita = np.arange(0, math.pi/2, (math.pi/2/(n_points+1)))
+
 
 #a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 #% Leading edge cerrado, para abierto se usa a4=0.1015;
