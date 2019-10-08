@@ -6,6 +6,9 @@ name="0055"
 n_points=100
 c=0.32
 coef=[]
+xc=[]
+yc=[]
+dyc=[]
 if len(name)==4:
     for x in name:
         coef.append(x)
@@ -23,9 +26,16 @@ print(XX)
 print(M)
 print(P)
 
-tita = np.arange(0, math.pi/2, (math.pi/2/(n_points+1)))
+tita = np.linspace(0, math.pi/2, n_points+1, True)
 
-
+for x in range(len(tita)):
+    xc.append(math.cos(tita[x]))
+    if xc[x]<P:
+        yc.append((M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))))
+        dyc.append(((2*M)/math.pow(P,2))*(P-xc[x]))
+    else:
+        yc.append((M/(math.pow(1-P,2))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2)))))
+        dyc.append((2*M/(math.pow(1-P,2)))*(P-xc[x]))
 #a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 #% Leading edge cerrado, para abierto se usa a4=0.1015;
 #a4=-0.1036;
