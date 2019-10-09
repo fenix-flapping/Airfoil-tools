@@ -3,7 +3,7 @@ import math # only for pi number
 
 import matplotlib.pyplot as plt #se puede borrar usado para verificar
 
-name="2418"
+name="0012"
 #def NACA_4D(name,n_points,separation,chord)
 n_points=100
 c=1
@@ -50,19 +50,17 @@ for x in range(len(tita)):
         yc.append((M/(math.pow(1-P,2))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2)))))
         dyc.append((2*M/(math.pow(1-P,2)))*(P-xc[x]))
     t.append(math.atan(dyc[x]))
-    Xu.append((xc[x]-yt[x]*math.sin(t[x]))*c)
-    Xl.append((xc[x]+yt[x]*math.sin(t[x]))*c)
-    Yu.append(yc[x]+yt[x]*math.cos(t[x])*c)
-    Yl.append((yc[x]-yt[x]*math.cos(t[x]))*c)
-X=Xu+Xl
-Y=Yu+Yl
-
+    Xu.append(round((xc[x]-yt[x]*math.sin(t[x]))*c,4))
+    Xl.append(round((xc[x]+yt[x]*math.sin(t[x]))*c,4))
+    Yu.append(round(yc[x]+yt[x]*math.cos(t[x])*c,4))
+    Yl.append(round((yc[x]-yt[x]*math.cos(t[x]))*c,4))
+X=Xu+Xl[::-1]
+Y=Yu+Yl[::-1]
 
 fig = plt.figure()
 ax = plt.axes()
-plt.plot(X,Y)
+plt.plot(X,Y, 'o', color='black')
 plt.show()
-
 
 #a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 #% Leading edge cerrado, para abierto se usa a4=0.1015;
