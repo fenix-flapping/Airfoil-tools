@@ -3,10 +3,10 @@ import math # only for pi number
 
 import matplotlib.pyplot as plt #se puede borrar usado para verificar
 
-name="0012"
+name="2418"
 #def NACA_4D(name,n_points,separation,chord)
 n_points=100
-c=0.32
+c=1
 coef=[]
 xc=[]
 yc=[]
@@ -23,11 +23,11 @@ if len(name)==4:
     for x in name:
         coef.append(x)
     # Max Thickness
-    XX=int(coef[0]+coef[1])/100
+    XX=int(coef[2]+coef[3])/100
     # First digit
-    M=int(coef[2])/100
+    M=int(coef[0])/100
     # Second digit
-    P=int(coef[2])/10
+    P=int(coef[1])/10
 else:
     print("The NACA number must be four digits")
 
@@ -36,12 +36,13 @@ print(XX)
 print(M)
 print(P)
 
-tita = np.linspace(0, math.pi/2, n_points+1, True)
+tita = np.linspace(math.pi/2, 0, n_points+1, True)
 a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 a4=-0.1036;
 
 for x in range(len(tita)):
-    xc.append(math.cos(tita[x]))
+    xc.append(1-math.cos(tita[x]))
+    yt.append((5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))))
     if xc[x]<P:
         yc.append((M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))))
         dyc.append(((2*M)/math.pow(P,2))*(P-xc[x]))
@@ -49,7 +50,6 @@ for x in range(len(tita)):
         yc.append((M/(math.pow(1-P,2))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2)))))
         dyc.append((2*M/(math.pow(1-P,2)))*(P-xc[x]))
     t.append(math.atan(dyc[x]))
-    yt.append((5*XX)*(a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4)))
     Xu.append((xc[x]-yt[x]*math.sin(t[x]))*c)
     Xl.append((xc[x]+yt[x]*math.sin(t[x]))*c)
     Yu.append(yc[x]+yt[x]*math.cos(t[x])*c)
