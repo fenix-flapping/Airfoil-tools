@@ -1,7 +1,9 @@
 import numpy as np
 import math # only for pi number
 
-name="0055"
+import matplotlib.pyplot as plt #se puede borrar usado para verificar
+
+name="0012"
 #def NACA_4D(name,n_points,separation,chord)
 n_points=100
 c=0.32
@@ -9,6 +11,14 @@ coef=[]
 xc=[]
 yc=[]
 dyc=[]
+Xu=[]
+Xl=[]
+Yu=[]
+Yl=[]
+t=[]
+yt=[]
+
+
 if len(name)==4:
     for x in name:
         coef.append(x)
@@ -27,6 +37,8 @@ print(M)
 print(P)
 
 tita = np.linspace(0, math.pi/2, n_points+1, True)
+a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
+a4=-0.1036;
 
 for x in range(len(tita)):
     xc.append(math.cos(tita[x]))
@@ -36,6 +48,22 @@ for x in range(len(tita)):
     else:
         yc.append((M/(math.pow(1-P,2))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2)))))
         dyc.append((2*M/(math.pow(1-P,2)))*(P-xc[x]))
+    t.append(math.atan(dyc[x]))
+    yt.append((5*XX)*(a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4)))
+    Xu.append((xc[x]-yt[x]*math.sin(t[x]))*c)
+    Xl.append((xc[x]+yt[x]*math.sin(t[x]))*c)
+    Yu.append(yc[x]+yt[x]*math.cos(t[x])*c)
+    Yl.append((yc[x]-yt[x]*math.cos(t[x]))*c)
+X=Xu+Xl
+Y=Yu+Yl
+
+
+fig = plt.figure()
+ax = plt.axes()
+plt.plot(X,Y)
+plt.show()
+
+
 #a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
 #% Leading edge cerrado, para abierto se usa a4=0.1015;
 #a4=-0.1036;
@@ -125,3 +153,4 @@ for x in range(len(tita)):
 #grid on
 #hold off
 #
+
