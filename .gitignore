@@ -102,3 +102,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+NACA-4D.v.1.py
