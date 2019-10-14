@@ -1,51 +1,48 @@
 import numpy as np
-import math # only for pi number
+import math
 
 import matplotlib.pyplot as plt #se puede borrar usado para verificar
-separation=True
-name="0009"
-#def NACA_4D(name,n_points,separation,chord)
-n_points=100
-c=1
-coef=[]
 
-if len(name)==4:
-    for x in name:
-        coef.append(x)
-    # Max Thickness
-    XX=int(coef[2]+coef[3])/100
-    # First digit
-    M=int(coef[0])/100
-    # Second digit
-    P=int(coef[1])/10
-else:
-    print("The NACA number must be four digits")
 
-print(coef)
-print(XX)
-print(M)
-print(P)
+def NACA_4D( name, chord=1, n_points=100 ,separation=False):
+    coef=[]
+    # NACA MPXX, classification of the 4 digits
+    if len(name) == 4:
+        for x in name:
+            coef.append(x)
+        XX = int(coef[2]+coef[3])/100
+        M = int(coef[0])/100
+        P = int(coef[1])/10
+    else:
+        print("The NACA number must be four digits")
+    
+    
+    a0 = 0.2969 ; a1 = -0.1260 ; a2 = -0.3516 ; a3 = 0.2843;
+    if separation == False:
+        a4 = -0.1036
+    else:
+        a4 = -0.1015
+        
+    tita = np.linspace(math.pi/2, 0, n_points, True)
+    xc = [1-math.cos(tita[x]) for x in range(len(tita))]
+    yt = [(5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))) for x in range(len(tita))]
+    yc = [(M/(math.pow(1-P,2)))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]>=P]+[(M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]<P]
+    dyc = [(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P]+[((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
+    t = [(math.atan(dyc[x])) for x in range(len(dyc))]
 
-tita = np.linspace(math.pi/2, 0, n_points, True)
-a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
-if separation==False:
-    a4=-0.1036;
-else:
-    a4=-0.1015;
+    Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
+    Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
+    Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,4) for x in range(len(xc))]
+    Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,4) for x in range(len(xc))]
 
-xc=[1-math.cos(tita[x]) for x in range(len(tita))]
-yt=[(5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))) for x in range(len(tita))]
-yc=[(M/(math.pow(1-P,2)))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]>=P]+[(M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]<P]
-dyc=[(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P]+[((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
-t=[(math.atan(dyc[x])) for x in range(len(dyc))]
+    X = Xu + Xl[::-1]
+    Y = Yu + Yl[::-1]
+    coords = [( X[x],Y[x] ) for x in range( len(X) )]
 
-Xu=[(round((xc[x]-yt[x]*math.sin(t[x]))*c,4)) for x in range(len(xc))]
-Xl=[round((xc[x]+yt[x]*math.sin(t[x]))*c,4) for x in range(len(xc))]
-Yu=[round(yc[x]+yt[x]*math.cos(t[x])*c,4) for x in range(len(xc))]
-Yl=[round((yc[x]-yt[x]*math.cos(t[x]))*c,4) for x in range(len(xc))]
+    return coords
 
-X=Xu+Xl[::-1]
-Y=Yu+Yl[::-1]
+coords=NACA_4D("4409")
+
 
 fig = plt.figure()
 ax = plt.axes()
