@@ -2,22 +2,12 @@ import numpy as np
 import math # only for pi number
 
 import matplotlib.pyplot as plt #se puede borrar usado para verificar
-
-name="0012"
+separation=True
+name="0009"
 #def NACA_4D(name,n_points,separation,chord)
 n_points=100
 c=1
 coef=[]
-xc=[]
-yc=[]
-dyc=[]
-Xu=[]
-Xl=[]
-Yu=[]
-Yl=[]
-t=[]
-yt=[]
-
 
 if len(name)==4:
     for x in name:
@@ -36,24 +26,24 @@ print(XX)
 print(M)
 print(P)
 
-tita = np.linspace(math.pi/2, 0, n_points+1, True)
+tita = np.linspace(math.pi/2, 0, n_points, True)
 a0=0.2969;a1=-0.1260;a2=-0.3516;a3=0.2843;
-a4=-0.1036;
+if separation==False:
+    a4=-0.1036;
+else:
+    a4=-0.1015;
 
-for x in range(len(tita)):
-    xc.append(1-math.cos(tita[x]))
-    yt.append((5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))))
-    if xc[x]<P:
-        yc.append((M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))))
-        dyc.append(((2*M)/math.pow(P,2))*(P-xc[x]))
-    else:
-        yc.append((M/(math.pow(1-P,2))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2)))))
-        dyc.append((2*M/(math.pow(1-P,2)))*(P-xc[x]))
-    t.append(math.atan(dyc[x]))
-    Xu.append(round((xc[x]-yt[x]*math.sin(t[x]))*c,4))
-    Xl.append(round((xc[x]+yt[x]*math.sin(t[x]))*c,4))
-    Yu.append(round(yc[x]+yt[x]*math.cos(t[x])*c,4))
-    Yl.append(round((yc[x]-yt[x]*math.cos(t[x]))*c,4))
+xc=[1-math.cos(tita[x]) for x in range(len(tita))]
+yt=[(5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))) for x in range(len(tita))]
+yc=[(M/(math.pow(1-P,2)))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]>=P]+[(M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]<P]
+dyc=[(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P]+[((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
+t=[(math.atan(dyc[x])) for x in range(len(dyc))]
+
+Xu=[(round((xc[x]-yt[x]*math.sin(t[x]))*c,4)) for x in range(len(xc))]
+Xl=[round((xc[x]+yt[x]*math.sin(t[x]))*c,4) for x in range(len(xc))]
+Yu=[round(yc[x]+yt[x]*math.cos(t[x])*c,4) for x in range(len(xc))]
+Yl=[round((yc[x]-yt[x]*math.cos(t[x]))*c,4) for x in range(len(xc))]
+
 X=Xu+Xl[::-1]
 Y=Yu+Yl[::-1]
 
