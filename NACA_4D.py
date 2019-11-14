@@ -1,9 +1,6 @@
 import numpy as np
 import math
 
-import matplotlib.pyplot as plt #se puede borrar usado para verificar
-
-
 def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     coef=[]
     # NACA MPXX, classification of the 4 digits
@@ -35,13 +32,15 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     dyc = [(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P]+[((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
     t = [(math.atan(dyc[x])) for x in range(len(dyc))]
     
-    # X,Y coordenas del extrados(u) e intrados(l) del Perfil
+    # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a 4 cifras despues de la coma
     Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
     Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
     Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,4) for x in range(len(xc))]
     Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,4) for x in range(len(xc))]
 
-    # Union de las curvas extrados e intrados, salida coords con listado de puntos
+    # Union de las curvas extrados e intrados, salida coords con listado de puntos. Se elimina puntos repetidos
+    Xl.pop()
+    Yl.pop()
     X = Xu + Xl[::-1]
     Y = Yu + Yl[::-1]
     coords = [( X[x],Y[x] ) for x in range( len(X) )]
