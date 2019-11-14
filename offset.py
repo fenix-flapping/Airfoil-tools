@@ -5,7 +5,7 @@ from NACA_4D import NACA_4D
 from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline
 
-a=NACA_4D('3318',1,50)
+a=NACA_4D('6620',1,100)
 
 # Dividir perfil en extrados e intrados
 xu=[]
@@ -28,17 +28,20 @@ yu.append(yl[0])
 
 
 
-
+plt.axis('square')
+plt.plot(xl,yl,'.')
+plt.plot(xu,yu,'*')
+plt.show()
 #plt.show()
 
-f = interp1d( xu, yu, kind='quadratic')
+f = interp1d( xu, yu, kind='linear')
 
 hcapa=0.03
 xoffset=[]
 yoffset=[]
 for i in range(len(xu)):
     xdif=xu[i]
-    dif=0.0001
+    dif=0.00001 # El valor debe ser menor a la cantidad de cifras que se manejen
     if i==(len(xu)-1):
         ang=math.atan2(f(xdif+dif)-f(xdif),dif) # diferencial hacia adelante
         xoffset.append(xdif-hcapa*math.sin(ang))

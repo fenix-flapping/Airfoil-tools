@@ -37,7 +37,8 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
     Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,4) for x in range(len(xc))]
     Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,4) for x in range(len(xc))]
-
+    
+    # DEBE FILTRASE VALORES DE "x" IGUALES YA QUE COMPLICAN SU PROCESAMIENTO
     # Union de las curvas extrados e intrados, salida coords con listado de puntos. Se elimina puntos repetidos
     Xl.pop()
     Yl.pop()
