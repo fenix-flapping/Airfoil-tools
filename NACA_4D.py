@@ -2,6 +2,7 @@ import numpy as np
 import math
 
 def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
+    n_points=round(n_points/2) # redondeo de numeros de puntos y corrección al numero de puntos
     coef=[]
     # NACA MPXX, classification of the 4 digits
     if len(name) == 4:
