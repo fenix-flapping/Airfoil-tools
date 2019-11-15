@@ -5,27 +5,15 @@ from NACA_4D import NACA_4D
 from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline
 
-a=NACA_4D('6620',1,100)
+
+coords=NACA_4D('6666',1,100)
 
 # Dividir perfil en extrados e intrados
-xu=[]
-xl=[]
-yl=[]
-yu=[]
-for i in range(len(a)-1):
-    x=a[i][0]
-    y=a[i][1]
-    if a[i][0]-a[i+1][0]>=0:
-        xu.append(x)
-        yu.append(y)
-    else:
-        xl.append(x)
-        yl.append(y)
-xl.append(a[len(a)-1][0])
-yl.append(a[len(a)-1][1])
-xu.append(xl[0])
-yu.append(yl[0])
-
+min=coords.index(min(coords))
+xu=[coords[i][0] for i in range(min)]
+xl=[coords[i][0] for i in range(min,len(coords))]
+yu=[coords[i][1] for i in range(min)]
+yl=[coords[i][1] for i in range(min,len(coords))]
 
 
 plt.axis('square')
