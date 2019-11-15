@@ -45,13 +45,13 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     Y = Yu + Yl[::-1]
     coords = [( X[x],Y[x] ) for x in range( len(X) )]
     
-    # Filtrado de valores repetidos de X cerca del borde de ataque
+    # Filtrado de valores repetidos de X cerca del borde de ataque. Se invierte loop del pop() para que no haya cambios de indexación
     index=[]
     for i in range(len(coords)-1):
         if abs(coords[i][0]-coords[i+1][0])<0.00009:
             index.append(i)
     try:
-        for i in range(len(index)):
+        for i in range(len(index)-1,-1,-1):
             coords.pop(index[i])
     except:
         None
