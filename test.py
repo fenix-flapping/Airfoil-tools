@@ -1,50 +1,47 @@
+import matplotlib.pyplot as plt #se puede borrar usado para verificar
 import numpy as np
 import math
+from NACA_4D import NACA_4D
+from offset_airfoil import offset_airfoil
+from scipy.interpolate import interp1d
 
-name='2412'
-chord=1
-n_points=100
-separation=False
 
-coef=[]
-# NACA MPXX, classification of the 4 digits
-if len(name) == 4:
-    for x in name:
-        coef.append(x)
-    M = int(coef[0])/100
-    P = int(coef[1])/10
-    XX = int(coef[2]+coef[3])/100
-else:
-    print("The NACA number must be four digits")
+def read_aorfoil(filename):
+    ignore_head = 0
+    coords = []
+    with open(filename, "r") as fid:
+        for line in fid.readlines()[ignore_head:]:
+            data = line.split()
+            coords.append((float(data[0]), float(data[1])))
 
-# Coeficientes de la función distribucion de espesor, el valor a4 define si el TE es abierto o cerrado
-a0 = 0.2969 ; a1 = -0.1260 ; a2 = -0.3516 ; a3 = 0.2843;
-if separation == False:
-    a4 = -0.1036
-else:
-    a4 = -0.1015
-'''
-Generacion de puntos "x" con una distribucion 1-cos(tita)
-yt funcion distribucion de espesor
-yc funcion de la linea de curvatura media, dyc su derivada
-tita pendiente en radianes de la linea de curvatura media
-'''
-tita = np.linspace(math.pi/2, 0, n_points, True)
-xc = [1-math.cos(tita[x]) for x in range(len(tita))]
-yt = [(5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))) for x in range(len(tita))]
-yc = [(M/(math.pow(1-P,2)))*(1-2*P+2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]>=P]+[(M/(math.pow(P,2)))*(2*P*xc[x]-(math.pow(xc[x],2))) for x in range(len(xc)) if xc[x]<P]
-dyc = [(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P]+[((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
-t = [(math.atan(dyc[x])) for x in range(len(dyc))]
+    # Se asegura de que el punto inicial este repetido al final de la secuencia
+#    if coords[0] != coords[-1]:
+#        coords.append(coords[0])
+    return coords
 
-# X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a 4 cifras despues de la coma
-Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
-Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
-Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,4) for x in range(len(xc))]
-Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,4) for x in range(len(xc))]
+coords=read_aorfoil('NREL-S812.dat')
 
-# Union de las curvas extrados e intrados, salida coords con listado de puntos. Se elimina puntos repetidos
-Xl.pop()
-Yl.pop()
-X = Xu + Xl[::-1]
-Y = Yu + Yl[::-1]
-coords = [( X[x],Y[x] ) for x in range( len(X) )]
+#X0=np.linspace(4, -4, 20, True)
+#X1=[X0[i] for i in range(len(X0))]
+#X3=X1+X1[::-1]
+#X3.pop(20)
+#coords = [( X3[i],math.pow(X3[i],2) ) for i in range( 0,19)]+ [( X3[i],-math.pow(X3[i],2) ) for i in range( 19,39 )]
+
+#X0=np.linspace(4, -4, 20, True)
+#coords = [( X0[i],math.pow(X0[i],2) ) for i in range( 0,20)]
+#coords=coords[::-1]
+
+
+#coords=NACA_4D('2412',1,200)
+
+coordsoffset=offset_airfoil(coords,0.001)
+
+X=[coords[i][0] for i in range(len(coords))]
+Y=[coords[i][1] for i in range(len(coords))]
+borrar1=[coordsoffset[i][0] for i in range(len(coordsoffset))]
+borrar2=[coordsoffset[i][1] for i in range(len(coordsoffset))]
+
+plt.axis('equal')
+plt.plot(borrar1,borrar2,'*')
+plt.plot(X,Y,'*')
+plt.show()
