@@ -33,11 +33,12 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     dyc = [(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P] + [((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
     t = [(math.atan(dyc[x])) for x in range(len(dyc))]
     
-    # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a 4 cifras significativas
-    Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
-    Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,4) for x in range(len(xc))]
-    Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,4) for x in range(len(xc))]
-    Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,4) for x in range(len(xc))]
+    # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a "prec" cifras significativas
+    prec = 4
+    Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,prec) for x in range(len(xc))]
+    Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,prec) for x in range(len(xc))]
+    Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,prec) for x in range(len(xc))]
+    Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,prec) for x in range(len(xc))]
     
     # Union de las curvas extrados e intrados, salida coords con listado de puntos. Se elimina puntos repetidos en extremos de vectores
     Xl.pop()
@@ -49,7 +50,7 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     # Filtrado de valores repetidos en el eje de abscisas(X) cerca del borde de ataque. Se invierte loop del pop() para que no haya cambios de indexación
     index=[]
     for i in range(len(coords)-1):
-        if abs(coords[i][0]-coords[i+1][0])<0.00009:
+        if abs(coords[i][0]-coords[i+1][0])<prec:
             index.append(i)
     try:
         for i in range(len(index)-1,-1,-1):
