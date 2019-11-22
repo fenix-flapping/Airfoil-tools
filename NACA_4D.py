@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
+def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False ):
     n_points=round(n_points/2) # redondeo de numeros de puntos y corrección al numero de puntos
     coef=[]
     # NACA MPXX, classification of the 4 digits
@@ -12,7 +12,8 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
         P = int(coef[1])/10
         XX = int(coef[2]+coef[3])/100
     else:
-        print("The NACA number must be four digits")
+        return print("The NACA number must be four digits")
+        
     
     # Coeficientes de la función distribucion de espesor, el valor a4 define si el TE es abierto o cerrado
     a0 = 0.2969 ; a1 = -0.1260 ; a2 = -0.3516 ; a3 = 0.2843;
@@ -34,11 +35,10 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     t = [(math.atan(dyc[x])) for x in range(len(dyc))]
     
     # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a "prec" cifras significativas
-    prec = 4
-    Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,prec) for x in range(len(xc))]
-    Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,prec) for x in range(len(xc))]
-    Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,prec) for x in range(len(xc))]
-    Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,prec) for x in range(len(xc))]
+    Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,precision) for x in range(len(xc))]
+    Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,precision) for x in range(len(xc))]
+    Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,precision) for x in range(len(xc))]
+    Yl = [round((yc[x]-yt[x]*math.cos(t[x]))*chord,precision) for x in range(len(xc))]
     
     # Union de las curvas extrados e intrados, salida coords con listado de puntos. Se elimina puntos repetidos en extremos de vectores
     Xl.pop()
@@ -50,7 +50,7 @@ def NACA_4D( name, chord=1, n_points=100 ,separation=False ):
     # Filtrado de valores repetidos en el eje de abscisas(X) cerca del borde de ataque. Se invierte loop del pop() para que no haya cambios de indexación
     index=[]
     for i in range(len(coords)-1):
-        if abs(coords[i][0]-coords[i+1][0])<prec:
+        if abs(coords[i][0]-coords[i+1][0]) < pow(10,-precision):
             index.append(i)
     try:
         for i in range(len(index)-1,-1,-1):
