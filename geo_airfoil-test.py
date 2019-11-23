@@ -6,6 +6,19 @@ from found_division_index import found_division_index
 import os
 import numpy as np
 
+def read_aorfoil(filename):
+    ignore_head = 0
+    coords = []
+    with open(filename, "r") as fid:
+        for line in fid.readlines()[ignore_head:]:
+            data = line.split()
+            coords.append((float(data[0]), float(data[1])))
+
+    # Se asegura de que el punto inicial este repetido al final de la secuencia
+#    if coords[0] != coords[-1]:
+#        coords.append(coords[0])
+    return coords
+
 def apply_rotation(coords, angle, center=(0.25,0)):
     center = np.array(center)
     theta = np.radians(angle) #convierte en radianes los gradosº
@@ -18,12 +31,13 @@ def apply_rotation(coords, angle, center=(0.25,0)):
         coords_rotated.append(tuple(vector_rotated + center)) # calculo rotacion del perfil
     return coords_rotated
 
-coords=NACA_4D('2412',10,300)
+chord=1
+#coords=NACA_4D('2412',chord,300)
+coords=read_aorfoil('NREL-S812.dat')
 
-
-# Buscar los indices donde se dividira el perfil 1 2/3 1/3 0
+# Buscar los indices donde se dividira el perfil 1 2/3 1/3 0, es necesario tener en cuenta la cuerda que se usa deberia ser una variable global
 separation_point=coords.index(min(coords))
-division=[1/3 , 2/3]
+division=[2/3*chord , 1/3*chord, 0.1*chord]
 
 mesh_dirname="mesh"
 bl=True
@@ -38,25 +52,45 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
         outputline = "Point(%i) = { %3.6f, %3.6f, 0.0};\n" % (j, x, y)
         j = j + 1
         fid.write(outputline)
+
     # Escritura de Puntos de la capa limite
     if bl==True:
         fid.write('\n// Puntos de la capa limite\n')
-        coords_offset=offset_airfoil(coords,0.1)
+        coords_offset=offset_airfoil(coords,0.01)
         coords_rotated=apply_rotation(coords_offset, ang)
         for x, y in coords_rotated: # Armado de puntos y spline final de gmsh
             outputline = "Point(%i) = { %3.6f, %3.6f, 0.0};\n" % (j, x, y)
             j = j + 1
             fid.write(outputline)
     
-    # Armado de lineas y splines
-    k=0 # k es sumador de lineas y splines
-    a=found_break_index(coords, division)
-    #for i in division
-        #fid.write("Spline(%i) = {%i:%i,%i};\n" % (k, startpoint, j, startpoint))
+    # Armado de lineas y splines {%i:%i,%i}
+    k=1 # k es sumador de lineas y splines
+    break_points=found_division_index(coords, division)
+    fid.write("\n// Lines and Splines\n")
+    for i in range(len(break_points)-1):
+        fid.write("Line(%i) = {%i:%i};\n" % (k, break_points[i], break_points[i+1]))
+        k=k+1
+        fid.write("Line(%i) = {%i:%i};\n" % (k, break_points[i] + len(coords), break_points[i+1] + len(coords)))
+        k=k+1
+        fid.write("Line(%i) = {%i,%i};\n" % (k, break_points[i], break_points[i] + len(coords)))
+        k = k + 1
+    fid.write("Line(%i) = {%i,%i};\n" % (k+2, break_points[i+1], break_points[i+1] + len(coords)))
+
+    # Armado de Superficies y transfinite y recombine de estas
+    l = 1  # k es sumador de lineas y splines
+    fid.write("\n// Surfaces\n")
+    for i in range(len(break_points) - 1):
+        fid.write("Line Loop(%i) = {%i, %i, %i, %i};\n" % (i+1,-l,(l+2),(l+1),-(l+5)))
+        fid.write("Surface(%i) = {%i};\n" % (i+1,i+1))
+        l = l + 3
         
-        
-        
-        
+    # Transfinite y Recombine de Superficies
+    fid.write("\n// Surfaces Transfinite and Recombine\n")
+    for i in range(1,len(break_points)):
+        fid.write(" Recombine Surface {%i};\n" % (i))
+        fid.write(" Transfinite Surface {%i};\n" %(i))
+    
+    
 def write_perfil(coords, lc=0.002, mesh_dirname="mesh", bl=True):
     with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid: # devuelve el path del directorio de donde se ejecuta
         fid.write("lc = %f;\n" % (lc)) # escribe mh6_lc = 0.002;

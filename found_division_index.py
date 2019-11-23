@@ -5,7 +5,7 @@ No posee proteccion ante pedido de valores erroneos o fuera de escala
 '''
 def found_division_index(coords , division):
     point_division_extr= [0] # El primer punto es siempre el "0"
-    point_division_intr = []
+    point_division_intr = [len(coords)-1]
     for div in division:
         for i in range(len(coords)):
                 j=0
