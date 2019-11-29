@@ -59,17 +59,17 @@ coords=read_aorfoil('NREL-S812.dat')
 
 # Buscar los indices donde se dividira el perfil 1 2/3 1/3 0, es necesario tener en cuenta la cuerda que se usa deberia ser una variable global
 separation_point = coords.index(min(coords))
-division = [2 / 3 * chord, 1 / 3 * chord, 0.1 * chord, 0.01 * chord]
+division = [2 / 3 * chord, 1 / 3 * chord, 0.1 * chord, 0.01]
 hbl = 0.01
 mesh_dirname = "mesh"
-bl = False
+bl = True 
 ang = 0
 
 with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
     # Rotacion de puntos del perfil
     coords_rotated = apply_rotation(coords, ang)
 
-    # Determinacion de puntos de division
+# Determinacion de puntos de division
     break_points = found_division_index(coords, division)
 
     # Analisis de separacion de puntos de borde de fuga, se debe tener un tratamiento de la malla diferente segun sea el caso.
@@ -93,7 +93,7 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
     # Escritura de Puntos del contorno exterior perfil
     count2 = 1000 + start_point # count2 es sumador de puntos de la capa limite, se alinea la numeracion de puntos
     # Calculo de puntos offset
-    coords_offset = offset_airfoil(coords, 0.1)
+    coords_offset = offset_airfoil(coords, 0.05)
     coords_rotated = apply_rotation(coords_offset, ang)
     fid.write('\n// Puntos del contorno exterior perfil\n')
     for x, y in coords_rotated:
