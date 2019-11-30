@@ -10,7 +10,7 @@ def offset_airfoil( coords , offset_value ):
     Yu = [coords[i][1] for i in range(minimum+1)]
     Yl = [coords[i][1] for i in range(minimum+1,len(coords))]
 
-    # Generación de funciones Spline
+    # Armado de funciones Splines con control de lista vacia
     if len(Xu)!=0:
         extr = interp1d( Xu, Yu, kind='linear')
     if len(Xl)!=0:

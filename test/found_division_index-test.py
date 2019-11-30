@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 coords=NACA_4D('2412',10,300)
-division=[]
+division=[2/3 , 1/3]
 
 '''
 Funcion que busca valores especificos de la ordenada del extrados e intrados
@@ -14,7 +14,7 @@ y devuelve el indice, en cual se ubica del vector de coordenadas del perfil.
 No posee proteccion ante pedido de valores erroneos o fuera de escala
 '''
 point_division_extr= [0] # El primer punto es siempre el "0"
-point_division_intr = []
+point_division_intr = [len(coords)-1]
 for div in division:
     for i in range(len(coords)):
             j=0

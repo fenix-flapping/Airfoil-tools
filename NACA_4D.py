@@ -38,7 +38,7 @@ def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False, distri
         tita = np.linspace(math.pi/2, 0, n_points, True)
         xc = [1-math.pow(math.cos(tita[x]),2) for x in range(len(tita))]
     else:
-        return print("Wrong distribution configuration")
+        return print("Wrong distribution configuration of the Airfoil")
         sys.exit() # Frena el codigo ya que no es posible realizarse mas nada
     
     yt = [(5*XX)*((a0*math.sqrt(xc[x]))+a1*(xc[x])+a2*(math.pow(xc[x],2))+a3*(math.pow(xc[x],3))+a4*(math.pow(xc[x],4))) for x in range(len(xc))]
