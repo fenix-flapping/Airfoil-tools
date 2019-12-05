@@ -10,7 +10,7 @@ distribution='Double'
 precision=6
 
 # Estructura mallado perfil
-division = [0.75 * chord, 0.5 * chord, 0.25*chord,0.10 * chord]
+
 hbl = 0.01
 mesh_dirname = "mesh"
 bl = True 

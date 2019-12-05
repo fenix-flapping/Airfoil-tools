@@ -5,13 +5,6 @@ from offset_airfoil import offset_airfoil
 from found_division_index import found_division_index
 import os
 import numpy as np
-import math
-from scipy.interpolate import interp1d
-from NACA_4D import NACA_4D
-from offset_airfoil import offset_airfoil
-from found_division_index import found_division_index
-import os
-import numpy as np
 from config import *
 from read_aorfoil import read_aorfoil
 
@@ -29,10 +22,11 @@ def apply_rotation(coords, angle, center=(0.25, 0)):
 
 #Variables
 max_angle=45
-coords = NACA_4D('4415', n_points=100, chord=1, separation=True)
+coords = NACA_4D('4415', n_points=100, chord=1, separation=False)
 filename='NREL-S812.dat'
 #coords=read_aorfoil('NREL-S812.dat', distribution='Cosine')
 bl=True
+ang=90
 
 # Valores de dominio
 wake_long = 3 # Longitud de la estela en cuerdas de perfil a partir del BF
@@ -42,8 +36,11 @@ tunnel_height = 2 # Altura del dominio en cuerdas de perfil a partir del eje x
 # Buscar los indices donde se dividira el perfil 1 2/3 1/3 0, es necesario tener en cuenta la cuerda que se usa deberia ser una variable global
 separation_point = coords.index(min(coords))
 
-
-
+'''
+INICIO DE LA FUNCION
+'''
+# Puntos en donde se divide el dominio del perfil, NO MODIFICAR los dos ultimos valores del vector "division"
+division = [0.75 * chord, 0.5 * chord, 0.25 * chord,  0.10 * chord]
 
 with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
     # Rotacion de puntos del perfil
@@ -130,38 +127,38 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
     if bl == True:
         # Divisiones capa limite
         for i in range(len(break_points) - 1):
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line4, break_points[i], break_points[i] + 2000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line4, break_points[i], break_points[i] + 2000))
             count_line4 = count_line4 + 1
         if separation == False:
             i = i + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line4, start_point , break_points[i] + 2000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line4, start_point , break_points[i] + 2000))
             count_line4 = count_line4 + 1
         else:
             i = i + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line4, break_points[i], break_points[i] + 2000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line4, break_points[i], break_points[i] + 2000))
             count_line4 = count_line4 + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line4, break_points[i], start_point)) 
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line4, break_points[i], start_point)) 
             count_line4 = count_line4 + 1
 
         # Divisiones del contorno exterior perfil (con capa limite)
         for i in range(len(break_points)):
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line5, break_points[i] + 2000, break_points[i] + 1000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line5, break_points[i] + 2000, break_points[i] + 1000))
             count_line5 = count_line5 + 1
 
     else:
         # Divisiones del contorno exterior perfil (sin capa limite)
         for i in range(len(break_points) - 1):
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line5, break_points[i], break_points[i] + 1000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line5, break_points[i], break_points[i] + 1000))
             count_line5 = count_line5 + 1
         if separation == False:
             i = i + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line5, start_point , break_points[i] + 1000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line5, start_point , break_points[i] + 1000))
             count_line5 = count_line5 + 1
         else:
             i = i + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line5, break_points[i], break_points[i] + 1000))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line5, break_points[i], break_points[i] + 1000))
             count_line5 = count_line5 + 1
-            fid.write("Line(%i) = {%i,%i};\n" % (count_line5, break_points[i], start_point))
+            fid.write("Line(%i) = {%i, %i};\n" % (count_line5, break_points[i], start_point))
             count_line5 = count_line5 + 1
 
     # Armado de Superficies del contorno del perfil
@@ -172,19 +169,19 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
         # Armado de Superficies en capa limite
         for i in range(len(break_points) - 1):
             fid.write("Line Loop(%i) = {%i, %i, %i, %i};\n" % (count_sup1, -(1 + i), 301 + i, 201 + i, -(302 + i)))
-            fid.write("Plane Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
+            fid.write("Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
             count_sup1 = count_sup1 + 1
 
         # Armado de Superficies en contorno exterior perfil (con capa limite)
         for i in range(len(break_points) - 1):
             fid.write("Line Loop(%i) = {%i, %i, %i, %i};\n" % (count_sup1, -(201 + i), 401 + i, 101 + i, -(402 + i)))
-            fid.write("Plane Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
+            fid.write("Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
             count_sup1 = count_sup1 + 1
     else:
         # Armado de Superficies en contorno exterior perfil (sin capa limite)
         for i in range(len(break_points) - 1):
             fid.write("Line Loop(%i) = {%i, %i, %i, %i};\n" % (count_sup1, -(1 + i), 401 + i, 101 + i, -(402 + i)))
-            fid.write("Plane Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
+            fid.write("Surface(%i) = {%i};\n" % (count_sup1, count_sup1))
             count_sup1 = count_sup1 + 1
 
     # Transfinite y Recombine de Superficies del contorno del perfil
@@ -194,9 +191,9 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
         fid.write(" Transfinite Surface {%i};\n" % (i))
     
     # Coordenadas de puntos de division del dominio
-    break1 = break_points[int((len(break_points)-3)/2)] # Punto al 25% del extrados
+    break1 = break_points[int((len(break_points)-5)/2)] # Punto al 25% del extrados
     break2 = break_points[int((len(break_points))/2)] # Punto del borde de ataque
-    break3 = break_points[int((len(break_points)+1)/2)] # Punto al 25% del intrados
+    break3 = break_points[int((len(break_points)+3)/2)] # Punto al 25% del intrados
         
     # Aramado de puntos del dominio
     fid.write("\n// Puntos del dominio\n")
@@ -257,6 +254,12 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
     # Armado de Superficies del dominio
     count_sup2 = 101 # count_sup2 sumador de Superficies del dominio
     
+    # Calculo de puntos clave para lineas de perfil
+    break1 = int((len(break_points)-5)/2)
+    break2 = int((len(break_points))/2)
+    break3 = int((len(break_points)+3)/2)
+    break4 = int((len(break_points)-1))
+    
     if ang < max_angle:
         # Superfice estela
         fid.write("Line Loop(%i) = {%i, %i, %i, %i};\n" % (count_sup2, 508, 601, 501, 509))
@@ -282,10 +285,81 @@ with open(os.path.join(mesh_dirname, "perfil.geo"), "w") as fid:
                 fid.write("Line Loop(%i) = {%i, %i, %i, %i, %i, %i, %i, %i};\n" % (count_sup2, 507, -601, 502, 602, -401, -(count_line5 - 1), count_line5 - 2, -606))
                 fid.write("Plane Surface(%i) = {%i};\n" % (count_sup2, count_sup2))
                 count_sup2 = count_sup2 + 1
-    else:
-        None #armar para angulos de ataque elevados
-        #Curve Loop(103) = {107, 108, -409, -309, 310, 301, 401, 101, 102, 103, 104, 105, 106};
                 
+        # Superfice dominio superior al perfil
+        ans = [i for i in range(101,break1+101)]
+        ans = ans + [-603, -503, 602]
+        ans = str(ans)[1:-1]
+        outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n" 
+        fid.write(outputline)
+        fid.write("Plane Surface(%i) = {%i};\n" % (count_sup2, count_sup2))
+        count_sup2 = count_sup2 + 1
+        
+        # Superfice frontal superior
+        ans = [i for i in range(break1+101,break2+101)]
+        ans = ans + [-604, -504, 603]
+        ans = str(ans)[1:-1]
+        outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n" 
+        fid.write(outputline)
+        fid.write("Plane Surface(%i) = {%i};\n" % (count_sup2, count_sup2))
+        count_sup2 = count_sup2 + 1
+        
+        # Superfice frontal inferior 
+        ans = [i for i in range(break2+101,break3+101)]
+        ans = ans + [-605, -505, 604]
+        ans = str(ans)[1:-1]
+        outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n" 
+        fid.write(outputline)
+        fid.write("Plane Surface(%i) = {%i};\n" % (count_sup2, count_sup2))
+        count_sup2 = count_sup2 + 1
+        
+        # Superfice dominio inferior al perfil
+        ans = [i for i in range(break3+101,break4+101)]
+        ans = ans + [-606, -506, 605]
+        ans = str(ans)[1:-1]
+        outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n" 
+        fid.write(outputline)
+        fid.write("Plane Surface(%i) = {%i};\n" % (count_sup2, count_sup2))
+        count_sup2 = count_sup2 + 1
+        
+    else: 
+        # Superfice Dominio Curve (ARREGLAR VALORES 300 400 YA QUE DEBEN SALIR DEL BREAK POINT)
+        ans = [i for i in range(501,510)]
+        ans = str(ans)[1:-1]
+        outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n"
+        fid.write(outputline)
+        count_sup2 = count_sup2 + 1
+        ans = [i for i in range(101,break4+101)]
+        if bl == True:
+            if separation == False:
+                ans = ans + [-(break4+401), -(break4+301), 301, 401]
+                ans = str(ans)[1:-1]
+                outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n"
+                fid.write(outputline)
+                fid.write("Plane Surface(%i) = {%i, %i};\n" % (count_sup2-1, count_sup2-1, count_sup2))
+                count_sup2 = count_sup2 + 1
+            else:
+                ans = ans + [-(break4+401), -(break4+301), (break4+301+1), 301, 401]
+                ans = str(ans)[1:-1]
+                outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n"
+                fid.write(outputline)
+                fid.write("Plane Surface(%i) = {%i, %i};\n" % (count_sup2-1, count_sup2-1, count_sup2))
+                count_sup2 = count_sup2 + 1
+        else:
+            if separation == False:
+                ans = ans + [-(break4+401), 401]
+                ans = str(ans)[1:-1]
+                outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n"
+                fid.write(outputline)
+                fid.write("Plane Surface(%i) = {%i, %i};\n" % (count_sup2-1, count_sup2-1, count_sup2))
+                count_sup2 = count_sup2 + 1
+            else:
+                ans = ans + [-(break4+401), break4+401+1, 401]
+                ans = str(ans)[1:-1]
+                outputline = "Line Loop(%i) = {" % (count_sup2) + ans +'}' + ";\n"
+                fid.write(outputline)
+                fid.write("Plane Surface(%i) = {%i, %i};\n" % (count_sup2-1, count_sup2-1, count_sup2))
+                count_sup2 = count_sup2 + 1
                 
                 
 def write_perfil(coords, lc=0.002, mesh_dirname="mesh", bl=True):
