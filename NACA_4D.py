@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False, distribution='Cosine' ):
-    n_points=round(n_points/2) # redondeo de numeros de puntos y corrección al numero de puntos
+    n_points = round(n_points/2) # redondeo de numeros de puntos y corrección al numero de puntos
     coef=[]
     # NACA MPXX, classification of the 4 digits
     if len(name) == 4:
@@ -46,7 +46,7 @@ def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False, distri
     dyc = [(2*M/(math.pow(1-P,2)))*(P-xc[x]) for x in range(len(xc)) if xc[x]>=P] + [((2*M)/math.pow(P,2))*(P-xc[x]) for x in range(len(xc)) if xc[x]<P]
     t = [(math.atan(dyc[x])) for x in range(len(dyc))]
     
-    # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a "prec" cifras significativas
+    # X,Y coordenas del extrados(u) e intrados(l) del Perfil, se redondea a "precision" cifras significativas
     Xu = [round((xc[x]-yt[x]*math.sin(t[x]))*chord,precision) for x in range(len(xc))]
     Xl = [round((xc[x]+yt[x]*math.sin(t[x]))*chord,precision) for x in range(len(xc))]
     Yu = [round(yc[x]+yt[x]*math.cos(t[x])*chord,precision) for x in range(len(xc))]
@@ -59,6 +59,7 @@ def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False, distri
     Y = Yu + Yl[::-1]
     coords = [( X[x],Y[x] ) for x in range( len(X) )]
     
+    '''
     # Filtrado de valores repetidos en el eje de abscisas(X) cerca del borde de ataque. Se invierte loop del pop() para que no haya cambios de indexación
     index=[]
     for i in range(len(coords)-1):
@@ -69,5 +70,5 @@ def NACA_4D( name, chord=1, n_points=100 , precision=4, separation=False, distri
             coords.pop(index[i])
     except:
         None
-        
+        '''
     return coords
